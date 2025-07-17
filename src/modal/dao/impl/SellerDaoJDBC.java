@@ -59,18 +59,11 @@ public class SellerDaoJDBC implements SellerDao {
 			
 			// testar se veio algum resultado(ou seja, se existe algum elemento do id inserido
 			if (rs.next()) {
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId")); // pegar o id do departamento
-				dep.setName(rs.getString("DepName"));
+				// refatorado, chamada da função
+				Department dep = instantiateDepartment(rs);
 				
 				// instanciar objeto seller
-				Seller obj = new Seller();
-				obj.setId(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setBaseSalary(rs.getDouble("BaseSalary"));
-				obj.setBirthDate(rs.getDate("BirthDate"));
-				obj.setDepartment(dep); // recebe o objeto por  conta da relação criada entre tabelas
+				Seller obj = instantiateSeller(rs, dep);
 				return obj;
 			}
 			return null;
@@ -81,9 +74,30 @@ public class SellerDaoJDBC implements SellerDao {
 		finally { // não precisa fechar a conexao
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
-		}
-		
+		}	
 	}
+
+	// propagando exceção na assinatura do método
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller obj = new Seller();
+		obj.setId(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setBaseSalary(rs.getDouble("BaseSalary"));
+		obj.setBirthDate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep); // recebe o objeto por  conta da relação criada entre tabelas
+		return obj;
+	}
+
+
+	// propagando exceção na assinatura do método
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId")); // pegar o id do departamento
+		dep.setName(rs.getString("DepName"));
+		return dep;
+	}
+
 
 	@Override
 	public List<Seller> findAll() {
